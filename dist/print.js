@@ -7,7 +7,7 @@
   const toggle=document.querySelector('#print-toggle'),replay=document.querySelector('#print-replay');
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   const scale=280/85,top=150,bottom=top+72*scale,duration=60000;
-  let elapsed=duration,last=null,frame=null,paused=false,inView=true,rows=null;
+  let elapsed=0,last=null,frame=null,paused=false,inView=true,rows=null;
   // Trace the pixels of the supplied Haptos artwork, not an invented shape.
   const artwork=new Image();
   artwork.onload=()=>{
@@ -26,8 +26,8 @@
   };
   artwork.onerror=()=>{elapsed=duration;render();replay.hidden=true;};
   function render(){
-    const p=Math.min(elapsed/duration,1),layer=Math.min(Math.floor(p*72),71);
-    const y=bottom-(layer+1)*scale,sweep=(p*72)%1;
+    const p=Math.min(elapsed/duration,1),completed=Math.min(Math.floor(p*72),72),layer=Math.min(completed,71);
+    const y=bottom-(layer+1)*scale,sweep=p===1?1:(p*72)%1;
     const spans=rows?rows[71-layer]:[];
     // A full horizontal pass includes travel across empty spaces, without teleporting.
     const left=spans.length?spans[0][0]:270,right=spans.length?spans[spans.length-1][1]:290;
@@ -35,7 +35,8 @@
     const x=p===1?445:left+(right-left)*(layer%2?1-eased:eased);
     const lift=Math.max(0,(sweep-.85)/.15)*scale;
     const headY=p===1?130:y+scale/2-lift;
-    clip.setAttribute('y',p===1?top:y+scale);clip.setAttribute('height',p===1?bottom-top:bottom-y-scale);
+    // Completed rows accumulate permanently. The final frame uses the same mask.
+    clip.setAttribute('y',bottom-completed*scale);clip.setAttribute('height',completed*scale);
     row.setAttribute('y',y);row.setAttribute('height',scale+.05);row.setAttribute('x',layer%2?x:140);row.setAttribute('width',p===1?0:layer%2?420-x:x-140);
     head.setAttribute('transform',`translate(${x} ${headY})`);head.setAttribute('opacity','1');
     gantry.setAttribute('transform',`translate(0 ${headY-68})`);
@@ -53,5 +54,9 @@
   replay.addEventListener('click',()=>{if(!rows)return;elapsed=0;paused=false;render();toggle.focus();schedule();});
   document.addEventListener('visibilitychange',()=>{stop();schedule();});
   if('IntersectionObserver' in window)new IntersectionObserver(entries=>{inView=entries[0].isIntersecting;stop();schedule();},{threshold:.1}).observe(scene);
-  reduced.addEventListener('change',resetPreference);render();artwork.src='assets/logo.png';
+  reduced.addEventListener('change',resetPreference);
+  // Do not flash a finished logo before loading and restarting the print.
+  clip.setAttribute('height','0');row.setAttribute('width','0');head.setAttribute('opacity','0');
+  bar.style.width='0%';percent.textContent='0%';toggle.hidden=true;replay.hidden=true;
+  artwork.src='assets/logo.png';
 })();
