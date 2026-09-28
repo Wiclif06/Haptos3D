@@ -1,11 +1,12 @@
 (() => {
   const scene=document.querySelector('.print-scene'); if(!scene)return;
   const clip=document.querySelector('#printed-height'),row=document.querySelector('#printing-row');
+  const gantry=document.querySelector('#print-gantry'),cable=document.querySelector('#print-cable'),tube=document.querySelector('#print-tube');
   const head=document.querySelector('#print-head'),bar=document.querySelector('#print-progress-bar');
   const percent=document.querySelector('#print-percent'),status=document.querySelector('#print-status');
   const toggle=document.querySelector('#print-toggle'),replay=document.querySelector('#print-replay');
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  const scale=280/85,top=150,bottom=top+72*scale,duration=12000;
+  const scale=280/85,top=150,bottom=top+72*scale,duration=60000;
   let elapsed=duration,last=null,frame=null,paused=false,inView=true,rows=null;
   // Trace the pixels of the supplied Haptos artwork, not an invented shape.
   const artwork=new Image();
@@ -27,12 +28,19 @@
   function render(){
     const p=Math.min(elapsed/duration,1),layer=Math.min(Math.floor(p*72),71);
     const y=bottom-(layer+1)*scale,sweep=(p*72)%1;
-    const spans=rows?rows[71-layer]:[];const total=spans.reduce((n,s)=>n+s[1]-s[0],0);
-    let distance=(layer%2?1-sweep:sweep)*total,x=140;
-    for(const span of spans){if(distance<=span[1]-span[0]){x=span[0]+distance;break;}distance-=span[1]-span[0];}
+    const spans=rows?rows[71-layer]:[];
+    // A full horizontal pass includes travel across empty spaces, without teleporting.
+    const left=spans.length?spans[0][0]:270,right=spans.length?spans[spans.length-1][1]:290;
+    const phase=Math.min(sweep/.85,1),eased=(1-Math.cos(phase*Math.PI))/2;
+    const x=p===1?445:left+(right-left)*(layer%2?1-eased:eased);
+    const lift=Math.max(0,(sweep-.85)/.15)*scale;
+    const headY=p===1?130:y+scale/2-lift;
     clip.setAttribute('y',p===1?top:y+scale);clip.setAttribute('height',p===1?bottom-top:bottom-y-scale);
     row.setAttribute('y',y);row.setAttribute('height',scale+.05);row.setAttribute('x',layer%2?x:140);row.setAttribute('width',p===1?0:layer%2?420-x:x-140);
-    head.setAttribute('transform',`translate(${x} ${y+scale/2})`);head.setAttribute('opacity',p===1||!spans.length?'0':'1');
+    head.setAttribute('transform',`translate(${x} ${headY})`);head.setAttribute('opacity','1');
+    gantry.setAttribute('transform',`translate(0 ${headY-68})`);
+    const cablePath=`M445 75 Q${x+45} ${Math.max(80,headY-135)} ${x} ${headY-94}`;
+    cable.setAttribute('d',cablePath);tube.setAttribute('d',cablePath);
     bar.style.width=`${p*100}%`;percent.textContent=`${Math.floor(p*100)}%`;
     status.textContent=p===1?'Logo Haptos concluída.':paused?'Impressão pausada.':'Imprimindo a logo Haptos…';
     toggle.hidden=p===1;toggle.textContent=paused?'Continuar':'Pausar';replay.hidden=p<1;

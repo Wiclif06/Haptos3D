@@ -2,7 +2,7 @@
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111111"><title>Haptos 3D — Impressão 3D sob medida</title><meta name="description" content="Impressão 3D, protótipos e peças personalizadas. Envie o projeto para a Haptos 3D e solicite seu orçamento."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%23111111'/%3E%3Ctext x='7' y='30' font-family='Arial' font-weight='900' font-size='29' fill='%23ff650a'%3EH%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="style.css"></head>
 <body><header><a class="brand" href="#inicio" aria-label="Haptos 3D, início"><img src="assets/logo.png" alt="Haptos 3D" width="195" height="36"></a><nav aria-label="Navegação principal"><a href="#solucoes">Soluções</a><a href="#processo">Como funciona</a><a href="#sobre">A Haptos</a><a href="#duvidas">Dúvidas</a></nav><a class="button small" href="#orcamento">Solicitar orçamento <span>↗</span></a><button class="menu" aria-label="Abrir menu" aria-expanded="false">☰</button></header>
 <main><section id="inicio" class="hero"><div class="hero-copy"><p class="eyebrow">HAPTOS 3D · IMPRESSÃO SOB MEDIDA</p><h1>Do arquivo 3D<br>à peça que<br>você precisa.</h1><p class="intro">Peças funcionais, protótipos e objetos personalizados.<br class="desktop"> Envie seu projeto e converse com a gente sobre a produção.</p><div class="hero-actions"><a class="button" href="#orcamento">Pedir orçamento</a><a class="text-link" href="#solucoes">Conhecer os serviços</a></div><p class="hero-notes">Ainda não tem o arquivo? Pode começar com uma foto ou desenho.</p></div><div class="hero-visual print-scene" aria-label="Animação da impressão da marca Haptos 3D">
-<div class="print-heading"><span>HAPTOS / EM PRODUÇÃO</span><span id="print-percent" aria-hidden="true">0%</span></div>
+<div class="print-heading"><span id="print-percent" aria-hidden="true">0%</span></div>
 <svg class="printer-stage" viewBox="0 0 560 500" role="img" aria-labelledby="printer-title printer-desc">
 <title id="printer-title">A marca Haptos ganha forma, camada por camada</title><desc id="printer-desc">Simulação estilizada de um bico de impressão construindo o símbolo original da Haptos de baixo para cima.</desc>
 <defs>
@@ -15,22 +15,47 @@
 <g id="haptos-symbol"><svg x="140" y="150" width="280" height="237.176" viewBox="0 0 85 72" overflow="hidden"><image href="assets/logo.png" width="390" height="72"/></svg></g>
 <mask id="symbol-mask"><use href="#haptos-symbol" style="filter:brightness(0) invert(1)"/></mask>
 </defs>
+<g id="printer-frame">
+<rect x="49" y="57" width="30" height="373" rx="4" fill="#272b2f" stroke="#5e646a"/>
+<rect x="481" y="57" width="30" height="373" rx="4" fill="#272b2f" stroke="#5e646a"/>
+<path d="M58 78V418M70 78V418M490 78V418M502 78V418" stroke="#101214" stroke-width="4"/>
+<path d="M83 83V417M477 83V417" stroke="#a2a9af" stroke-width="4"/>
+<path d="M83 84V416M477 84V416" stroke="#34383d" stroke-width="5" stroke-dasharray="1 5"/>
+<rect x="42" y="48" width="476" height="35" rx="6" fill="#30353a" stroke="#697078"/>
+<path d="M59 57H500" stroke="#7c8389" opacity=".55"/>
+<rect x="233" y="56" width="94" height="17" rx="3" fill="#121416"/>
+<text x="280" y="68" text-anchor="middle" fill="#b5bbc0" font-size="9" font-family="monospace" letter-spacing="2">HAPTOS 3D</text>
+<g fill="#121416" stroke="#7c8389"><circle cx="60" cy="65" r="4"/><circle cx="499" cy="65" r="4"/><circle cx="64" cy="410" r="4"/><circle cx="495" cy="410" r="4"/></g>
+<path id="print-cable" d="M445 75Q445 100 280 200" fill="none" stroke="#0c0d0e" stroke-width="10"/>
+<path id="print-tube" d="M445 75Q445 100 280 200" fill="none" stroke="#777d80" stroke-width="3"/>
+</g>
 <ellipse cx="280" cy="428" rx="182" ry="29" fill="#000" opacity=".4"/>
 <path d="M82 370H444L508 434H28Z" fill="url(#print-bed)" stroke="#5b5e60" stroke-width="1"/>
 <path d="M82 370H444L508 434H28Z" fill="url(#bed-grid)"/>
 <path d="M28 434V444H508V434" fill="#101113" stroke="#3b3d40"/>
 
 <g clip-path="url(#print-height)" style="mix-blend-mode:lighten"><use href="#haptos-symbol"/></g>
-<g id="print-head" opacity="0">
-<path d="M-240 -74H300" stroke="#44484b" stroke-width="7"/>
-<path d="M-240 -73H300" stroke="#92989e" stroke-width="1"/>
-<rect x="-24" y="-98" width="48" height="63" rx="6" fill="#272b2e" stroke="#6c7278"/>
-<path d="M-15 -86H15M-15 -78H15M-15 -70H15M-15 -62H15" stroke="#777e84" stroke-width="3"/>
-<rect x="-11" y="-35" width="22" height="19" rx="2" fill="#a8a5a0"/>
-<path d="M-11 -16H11L3 -3H-3Z" fill="#d4a76d"/>
-<path d="M0 -3V1" stroke="#ffaf50" stroke-width="3"/>
-<ellipse cy="3" rx="9" ry="2" fill="#ff7b1b" opacity=".8"/>
+<g id="print-gantry" transform="translate(0 320)">
+<rect x="56" y="-18" width="27" height="45" rx="4" fill="#373c41" stroke="#747b82"/>
+<rect x="477" y="-18" width="27" height="45" rx="4" fill="#373c41" stroke="#747b82"/>
+<rect x="78" y="-7" width="404" height="21" rx="2" fill="#25292d" stroke="#777e85"/>
+<path d="M80 -3H480" stroke="#a4adb5" stroke-width="2"/><path d="M80 9H480" stroke="#111" stroke-width="3" stroke-dasharray="3 2"/>
 </g>
+<g id="print-head" opacity="0">
+<rect x="-34" y="-94" width="68" height="65" rx="7" fill="#343b42" stroke="#8c959d"/>
+<path d="M-33 -80V-90Q-33 -94 -27 -94H27Q33 -94 33 -90V-80" fill="#ef6517"/>
+<rect x="-28" y="-77" width="45" height="43" rx="5" fill="#171b1e" stroke="#50585e"/>
+<circle cx="-5" cy="-55" r="17" fill="#090c0e" stroke="#6b747c"/>
+<g stroke="#626c74" stroke-width="3"><path d="M-18 -65L8 -45M-18 -45L8 -65M-5 -71V-39M-21 -55H11"/></g><circle cx="-5" cy="-55" r="5" fill="#9da5aa"/>
+<path d="M23 -72V-41M27 -72V-41" stroke="#101416" stroke-width="2"/>
+<g fill="#bac0c5"><circle cx="-27" cy="-87" r="2"/><circle cx="27" cy="-87" r="2"/><circle cx="-27" cy="-35" r="2"/><circle cx="27" cy="-35" r="2"/></g>
+<rect x="-12" y="-29" width="24" height="12" rx="2" fill="#969a9c" stroke="#c1c5c6"/>
+<path d="M-10 -25H10M-10 -21H10" stroke="#42494f"/>
+<path d="M-8 -17H8L10 -11L4 -4H-4L-10 -11Z" fill="#bb914e" stroke="#e4bf7c"/>
+<path d="M-4 -4H4L1 0H-1Z" fill="#e4bf7c"/>
+<path d="M0 0V2" stroke="#ff8b31" stroke-width="2"/>
+</g>
+<rect x="45" y="444" width="38" height="16" rx="4" fill="#0b0c0d"/><rect x="461" y="444" width="38" height="16" rx="4" fill="#0b0c0d"/>
 <text x="280" y="477" text-anchor="middle" fill="#74797c" font-size="11" font-family="monospace" letter-spacing="4">HAPTOS 3D</text>
 </svg>
 <div class="print-progress" aria-hidden="true"><span id="print-progress-bar"></span></div>
