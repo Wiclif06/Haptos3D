@@ -1,0 +1,8 @@
+.git
+.openai
+.vercel
+node_modules
+README.md
+*.zip
+*.tar.gz
+.env*

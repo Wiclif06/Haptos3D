@@ -1,0 +1,47 @@
+# Haptos 3D — publicação na Vercel
+
+Site estático em HTML, CSS e JavaScript. O pacote contém a versão revisada do site.
+
+## Publicar pelo painel
+
+1. Extraia o ZIP e envie o conteúdo para um repositório GitHub, GitLab ou Bitbucket.
+2. Na Vercel, escolha **Add New → Project** e importe esse repositório.
+3. Use a pasta que contém `vercel.json` como **Root Directory**.
+4. Selecione **Framework Preset: Other**. O `vercel.json` já define a saída como `dist` e dispensa comandos de instalação e build.
+5. Clique em **Deploy**.
+
+Não é necessário configurar variáveis de ambiente.
+
+## Publicar pelo terminal
+
+Na pasta que contém `vercel.json`, com Node.js instalado:
+
+```sh
+npx vercel
+```
+
+Faça login na sua conta e siga as instruções para criar ou selecionar o projeto. Esse comando gera uma publicação de prévia. Para publicar em produção:
+
+```sh
+npx vercel --prod
+```
+
+## Arquivos
+
+- `dist/index.html`: conteúdo da página.
+- `dist/style.css`: identidade visual e layout responsivo.
+- `dist/app.js`: menu e formulário de orçamento.
+- `dist/assets/`: imagens da marca.
+- `vercel.json`: configuração de publicação.
+
+O formulário abre o WhatsApp **+55 (11) 93284-5696** com a mensagem preenchida. O visitante confirma o envio no WhatsApp. Não há armazenamento de pedidos no site.
+
+As fontes são carregadas pelo Google Fonts, com fontes locais alternativas. Os caminhos das imagens, estilos e scripts são relativos e não dependem da prévia local.
+
+Para editar o telefone, atualize os links em `dist/index.html` e o destinatário em `dist/app.js`.
+
+## Domínio próprio
+
+Depois de publicar, adicione seu domínio em **Project Settings → Domains** e siga os registros DNS informados pela Vercel.
+
+Documentação: https://vercel.com/docs/deployments/configure-a-build

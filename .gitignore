@@ -1,0 +1,6 @@
+.vercel/
+.openai/
+node_modules/
+.env*
+*.zip
+*.tar.gz
