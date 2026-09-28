@@ -4,29 +4,23 @@
 <main><section id="inicio" class="hero"><div class="hero-copy"><p class="eyebrow">HAPTOS 3D · IMPRESSÃO SOB MEDIDA</p><h1>Do arquivo 3D<br>à peça que<br>você precisa.</h1><p class="intro">Peças funcionais, protótipos e objetos personalizados.<br class="desktop"> Envie seu projeto e converse com a gente sobre a produção.</p><div class="hero-actions"><a class="button" href="#orcamento">Pedir orçamento</a><a class="text-link" href="#solucoes">Conhecer os serviços</a></div><p class="hero-notes">Ainda não tem o arquivo? Pode começar com uma foto ou desenho.</p></div><div class="hero-visual print-scene" aria-label="Animação da impressão da marca Haptos 3D">
 <div class="print-heading"><span>HAPTOS / EM PRODUÇÃO</span><span id="print-percent" aria-hidden="true">0%</span></div>
 <svg class="printer-stage" viewBox="0 0 560 500" role="img" aria-labelledby="printer-title printer-desc">
-<title id="printer-title">A marca Haptos ganha forma, camada por camada</title><desc id="printer-desc">Simulação estilizada de um bico de impressão construindo o símbolo preto e laranja da Haptos de baixo para cima.</desc>
+<title id="printer-title">A marca Haptos ganha forma, camada por camada</title><desc id="printer-desc">Simulação estilizada de um bico de impressão construindo o símbolo original da Haptos de baixo para cima.</desc>
 <defs>
 <linearGradient id="print-bed" x2="0" y2="1"><stop stop-color="#343638"/><stop offset="1" stop-color="#191b1d"/></linearGradient>
 <linearGradient id="black-filament" x2="1" y2="1"><stop stop-color="#72767a"/><stop offset=".5" stop-color="#35383a"/><stop offset="1" stop-color="#1e2022"/></linearGradient>
 <linearGradient id="orange-filament" x2="1" y2="1"><stop stop-color="#ff9a32"/><stop offset="1" stop-color="#f45605"/></linearGradient>
 <pattern id="bed-grid" width="28" height="18" patternUnits="userSpaceOnUse"><path d="M28 0H0V18" fill="none" stroke="#707478" stroke-width=".6" opacity=".25"/></pattern>
 <pattern id="filament-layers" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 3.5H4" stroke="#000" stroke-opacity=".22" stroke-width=".8"/></pattern>
-<clipPath id="print-height"><rect id="printed-height" x="110" y="120" width="350" height="300"/></clipPath>
-<g id="haptos-symbol">
-<path d="M150 208L188 187V267L239 296V253L276 274V398L239 377V337L188 308V353L150 331Z" fill="url(#black-filament)" stroke="#93989c" stroke-opacity=".25"/>
-<path d="M239 145L275 124L306 142V268L276 285L239 263Z" fill="url(#black-filament)" stroke="#93989c" stroke-opacity=".25"/>
-<path d="M306 142L368 178V229L306 193Z M306 211L368 247V298L306 262Z M306 280L368 316V367L306 403Z" fill="url(#orange-filament)"/>
-<path d="M368 178L390 165V216L368 229Z M368 247L390 234V285L368 298Z M368 316L390 303V354L368 367Z" fill="#b93d05"/>
-<path d="M306 142L328 129L390 165L368 178Z M306 211L328 198L390 234L368 247Z M306 280L328 267L390 303L368 316Z" fill="#ffac4b"/>
-</g>
+<clipPath id="print-height"><rect id="printed-height" x="140" y="150" width="280" height="238"/><rect id="printing-row" x="140" y="388" width="0" height="3.3"/></clipPath>
+<g id="haptos-symbol"><svg x="140" y="150" width="280" height="237.176" viewBox="0 0 85 72" overflow="hidden"><image href="assets/logo.png" width="390" height="72"/></svg></g>
 <mask id="symbol-mask"><use href="#haptos-symbol" style="filter:brightness(0) invert(1)"/></mask>
 </defs>
 <ellipse cx="280" cy="428" rx="182" ry="29" fill="#000" opacity=".4"/>
 <path d="M82 370H444L508 434H28Z" fill="url(#print-bed)" stroke="#5b5e60" stroke-width="1"/>
 <path d="M82 370H444L508 434H28Z" fill="url(#bed-grid)"/>
 <path d="M28 434V444H508V434" fill="#101113" stroke="#3b3d40"/>
-<use href="#haptos-symbol" opacity=".055"/>
-<g clip-path="url(#print-height)"><use href="#haptos-symbol"/><rect x="140" y="120" width="260" height="290" fill="url(#filament-layers)" mask="url(#symbol-mask)"/></g>
+
+<g clip-path="url(#print-height)" style="mix-blend-mode:lighten"><use href="#haptos-symbol"/></g>
 <g id="print-head" opacity="0">
 <path d="M-240 -74H300" stroke="#44484b" stroke-width="7"/>
 <path d="M-240 -73H300" stroke="#92989e" stroke-width="1"/>
