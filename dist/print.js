@@ -6,7 +6,8 @@
   const percent=document.querySelector('#print-percent'),status=document.querySelector('#print-status');
   const toggle=document.querySelector('#print-toggle'),replay=document.querySelector('#print-replay');
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  const scale=280/85,top=150,bottom=top+72*scale,duration=60000;
+  const scale=280/85,top=150,duration=50000;
+  let firstRow=0,lastRow=71,layerCount=72,bottom=top+72*scale;
   let elapsed=0,last=null,frame=null,paused=false,inView=true,rows=null;
   // Use the displayed vector to calculate the print head path.
   const artwork=new Image();
@@ -18,22 +19,30 @@
       const spans=[];let start=null;
       for(let x=0;x<=85;x++){
         const i=(y*85+x)*4;
-        const ink=x<85&&pixels[i+3]>100;
+        const ink=x<85&&pixels[i+3]>0;
         if(ink&&start===null)start=x;
         if(!ink&&start!==null){spans.push([140+start*scale,140+x*scale]);start=null;}
       }return spans;
-    });resetPreference();
+    });
+    // Ignore transparent margins: the last pass is the actual top of the model.
+    firstRow=rows.findIndex(spans=>spans.length);
+    if(firstRow<0){artwork.onerror();return;}
+    lastRow=rows.findLastIndex(spans=>spans.length);
+    layerCount=lastRow-firstRow+1;
+    bottom=top+(lastRow+1)*scale;
+    resetPreference();
   };
   artwork.onerror=()=>{elapsed=duration;render();replay.hidden=true;};
   function render(){
-    const p=Math.min(elapsed/duration,1),completed=Math.min(Math.floor(p*72),72),layer=Math.min(completed,71);
-    const y=bottom-(layer+1)*scale,sweep=p===1?1:(p*72)%1;
-    const spans=rows?rows[71-layer]:[];
+    const p=Math.min(elapsed/duration,1),completed=Math.min(Math.floor(p*layerCount),layerCount),layer=Math.min(completed,layerCount-1);
+    const y=bottom-(layer+1)*scale,sweep=p===1?1:(p*layerCount)%1;
+    const spans=rows?rows[lastRow-layer]:[];
     // A full horizontal pass includes travel across empty spaces, without teleporting.
     const left=spans.length?spans[0][0]:270,right=spans.length?spans[spans.length-1][1]:290;
-    const phase=Math.min(sweep/.85,1),eased=(1-Math.cos(phase*Math.PI))/2;
+    const finalLayer=layer===layerCount-1;
+    const phase=Math.min(sweep/(finalLayer?1:.85),1),eased=(1-Math.cos(phase*Math.PI))/2;
     const x=p===1?445:left+(right-left)*(layer%2?1-eased:eased);
-    const lift=Math.max(0,(sweep-.85)/.15)*scale;
+    const lift=finalLayer?0:Math.max(0,(sweep-.85)/.15)*scale;
     const headY=p===1?130:y+scale/2-lift;
     // Completed rows accumulate permanently. The final frame uses the same mask.
     clip.setAttribute('y',bottom-completed*scale);clip.setAttribute('height',completed*scale);
