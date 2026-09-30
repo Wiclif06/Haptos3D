@@ -57,3 +57,11 @@ Documentação: https://vercel.com/docs/deployments/configure-a-build
 - O site usa a cota do projeto já contratado: não foi criado projeto adicional nem contratada mensalidade nova. Excedentes seguem o plano existente.
 - `portfolio-setup.sql` registra o esquema já aplicado; não executar novamente em produção.
 - Validação: login, upload, edição, publicação, leitura anônima, ocultação, bloqueio de escrita anônima e isolamento de leitura de empresas do ERP. Registros temporários removidos.
+
+### Galeria e orçamento
+
+- Cada projeto aceita de 1 a 8 fotos. `image_paths` guarda a galeria; `image_path` mantém a capa e a compatibilidade com projetos anteriores.
+- O painel permite adicionar/remover fotos; ao salvar, arquivos removidos são limpos do armazenamento. A primeira foto é a capa.
+- O visitante alterna as fotos no detalhe e usa “Quero algo parecido” para abrir o WhatsApp com o título do projeto.
+- O formulário inclui medidas, quantidade e prazo desejado opcionais, enviados na mensagem de orçamento.
+- Migração aplicada: `portfolio-gallery.sql`. Testados upload de duas fotos, troca na galeria, edição/remoção da capa, limpeza de arquivos e mensagem com todos os campos e com campos opcionais vazios.
