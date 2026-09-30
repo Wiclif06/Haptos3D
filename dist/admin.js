@@ -1,6 +1,14 @@
 (() => {
   const client=window.haptosClient,$=s=>document.querySelector(s),status=$('#admin-status');
   let projects=[],editing=null,previewUrl=null,recovery=false;
+  let sessionRevision=0;
+  function showPanel(id){
+    for(const panelId of ['login-panel','password-panel','dashboard']){
+      const panel=$('#'+panelId),visible=panelId===id;
+      panel.hidden=!visible;
+      panel.style.display=visible?'':'none';
+    }
+  }
   const message=text=>{status.textContent=text};
   const failure=error=>error?.status===401||error?.code==='PGRST301'?'Sua sessão expirou. Entre novamente.':'Não foi possível concluir. Verifique sua conexão e tente novamente.';
   function resetEditor(){editing=null;$('#project-form').reset();$('#project-id').value='';$('#editor-title').textContent='Novo projeto';$('#save-project').textContent='Publicar projeto';$('#cancel-edit').hidden=true;$('#photo-preview').hidden=true;if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}}
@@ -19,12 +27,14 @@
     }
   }
   async function applySession(session){
-    $('#dashboard').hidden=true;$('#login-panel').hidden=!!session;$('#password-panel').hidden=true;
-    if(!session)return;
+    const revision=++sessionRevision;
+    showPanel(session?null:'login-panel');
+    if(!session){recovery=false;return;}
     const {data,error}=await client.from('haptos_portfolio_admins').select('user_id').eq('user_id',session.user.id).maybeSingle();
+    if(revision!==sessionRevision)return;
     if(error||!data){await client.auth.signOut();message('Esta conta não tem acesso ao portfólio.');return;}
-    if(recovery){$('#password-panel').hidden=false;return;}
-    $('#dashboard').hidden=false;
+    if(recovery){showPanel('password-panel');return;}
+    showPanel('dashboard');
     try{await loadProjects();}catch(error){message(failure(error));}
   }
   if(!client){message('O painel está sendo configurado. O acesso será liberado assim que a configuração for concluída.');$('#login-form button').disabled=true;return;}
