@@ -5,7 +5,7 @@
   const message=document.querySelector('#portfolio-message'),more=document.querySelector('#portfolio-more');
   const dialog=document.querySelector('#project-dialog');let offset=0,trigger=null;
   const photoUrl=path=>haptosClient.storage.from('haptos-portfolio').getPublicUrl(path).data.publicUrl;
-  const quoteUrl=project=>'https://wa.me/5511932845696?text='+encodeURIComponent('Olá, Haptos 3D! Vi o projeto “'+project.title+'” no portfólio e quero algo parecido. Podemos conversar sobre um orçamento?\n\nReferência: https://haptos3d.vercel.app/portfolio.html');
+  const quoteUrl=project=>'https://wa.me/5511932845696?text='+encodeURIComponent('Olá, Haptos 3D! Vi o projeto “'+project.title+'” no portfólio e quero algo parecido. Podemos conversar sobre um orçamento?\n\nReferência: https://haptos3d.com.br/portfolio.html');
   function showProject(project,button){
     trigger=button;
     const paths=project.image_paths?.length?project.image_paths:[project.image_path];
