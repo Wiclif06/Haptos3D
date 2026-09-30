@@ -5,23 +5,23 @@
   const failure=error=>error?.status===401||error?.code==='PGRST301'?'Sua sessão expirou. Entre novamente.':'Não foi possível concluir. Verifique sua conexão e tente novamente.';
   function resetEditor(){editing=null;$('#project-form').reset();$('#project-id').value='';$('#editor-title').textContent='Novo projeto';$('#save-project').textContent='Publicar projeto';$('#cancel-edit').hidden=true;$('#photo-preview').hidden=true;if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}}
   async function loadProjects(){
-    const {data,error}=await client.from('portfolio_projects').select('*').order('created_at',{ascending:false});
+    const {data,error}=await client.from('haptos_portfolio_projects').select('*').order('created_at',{ascending:false});
     if(error)throw error;projects=data;$('#admin-projects').replaceChildren();$('#admin-empty').hidden=data.length>0;$('#admin-empty').textContent='Seu primeiro projeto começa aqui. Preencha os campos ao lado e envie uma foto.';
     for(const item of data){
       const card=document.createElement('article');card.className='admin-card';
-      const img=document.createElement('img');img.alt=item.title;img.loading='lazy';img.src=client.storage.from('portfolio').getPublicUrl(item.image_path).data.publicUrl;
+      const img=document.createElement('img');img.alt=item.title;img.loading='lazy';img.src=client.storage.from('haptos-portfolio').getPublicUrl(item.image_path).data.publicUrl;
       const body=document.createElement('div'),title=document.createElement('h3'),state=document.createElement('p'),actions=document.createElement('div');title.textContent=item.title;state.textContent=item.published?'Publicado no site':'Oculto do site';actions.className='admin-card-actions';
       const edit=document.createElement('button');edit.type='button';edit.className='outline-button';edit.textContent='Editar';edit.addEventListener('click',()=>{
         resetEditor();editing=item;$('#project-id').value=item.id;$('#project-title').value=item.title;$('#project-description').value=item.description;$('#project-published').checked=item.published;$('#photo-preview').src=img.src;$('#photo-preview').hidden=false;$('#editor-title').textContent='Editar projeto';$('#save-project').textContent='Salvar alterações';$('#cancel-edit').hidden=false;$('#project-title').focus();
       });
-      const visibility=document.createElement('button');visibility.type='button';visibility.className='outline-button';visibility.textContent=item.published?'Ocultar':'Publicar';visibility.addEventListener('click',async()=>{visibility.disabled=true;try{const {data,error}=await client.from('portfolio_projects').update({published:!item.published}).eq('id',item.id).select('id').single();if(error||!data)throw error||new Error();await loadProjects();message(item.published?'Projeto ocultado. Você pode publicá-lo novamente quando quiser.':'Projeto publicado.');}catch(error){message(failure(error));}finally{visibility.disabled=false;}});
+      const visibility=document.createElement('button');visibility.type='button';visibility.className='outline-button';visibility.textContent=item.published?'Ocultar':'Publicar';visibility.addEventListener('click',async()=>{visibility.disabled=true;try{const {data,error}=await client.from('haptos_portfolio_projects').update({published:!item.published}).eq('id',item.id).select('id').single();if(error||!data)throw error||new Error();await loadProjects();message(item.published?'Projeto ocultado. Você pode publicá-lo novamente quando quiser.':'Projeto publicado.');}catch(error){message(failure(error));}finally{visibility.disabled=false;}});
       actions.append(edit,visibility);body.append(title,state,actions);card.append(img,body);$('#admin-projects').append(card);
     }
   }
   async function applySession(session){
     $('#dashboard').hidden=true;$('#login-panel').hidden=!!session;$('#password-panel').hidden=true;
     if(!session)return;
-    const {data,error}=await client.from('portfolio_admins').select('user_id').eq('user_id',session.user.id).maybeSingle();
+    const {data,error}=await client.from('haptos_portfolio_admins').select('user_id').eq('user_id',session.user.id).maybeSingle();
     if(error||!data){await client.auth.signOut();message('Esta conta não tem acesso ao portfólio.');return;}
     if(recovery){$('#password-panel').hidden=false;return;}
     $('#dashboard').hidden=false;
@@ -49,11 +49,11 @@
     button.disabled=true;message('Salvando projeto…');let uploaded=null,committed=false;
     try{
       let imagePath=editing?.image_path;
-      if(file){const blob=await optimize(file);imagePath=crypto.randomUUID()+'.webp';const {error}=await client.storage.from('portfolio').upload(imagePath,blob,{contentType:blob.type,cacheControl:'31536000',upsert:false});if(error)throw error;uploaded=imagePath;}
+      if(file){const blob=await optimize(file);imagePath=crypto.randomUUID()+'.webp';const {error}=await client.storage.from('haptos-portfolio').upload(imagePath,blob,{contentType:blob.type,cacheControl:'31536000',upsert:false});if(error)throw error;uploaded=imagePath;}
       const value={title,description,image_path:imagePath,published:$('#project-published').checked};
-      const query=editing?client.from('portfolio_projects').update(value).eq('id',editing.id):client.from('portfolio_projects').insert(value);
+      const query=editing?client.from('haptos_portfolio_projects').update(value).eq('id',editing.id):client.from('haptos_portfolio_projects').insert(value);
       const {data,error}=await query.select('id').single();if(error||!data)throw error||new Error();committed=true;resetEditor();await loadProjects();message(value.published?'Projeto salvo e publicado no site.':'Projeto salvo e oculto do site.');
-    }catch(error){if(uploaded&&!committed)await client.storage.from('portfolio').remove([uploaded]);message(committed?'Projeto salvo. Atualize a página para recarregar a lista.':error?.message==='photo'?'Não foi possível processar esta foto. Use JPG, PNG ou WebP de até 10 MB e no máximo 40 megapixels.':failure(error));}
+    }catch(error){if(uploaded&&!committed)await client.storage.from('haptos-portfolio').remove([uploaded]);message(committed?'Projeto salvo. Atualize a página para recarregar a lista.':error?.message==='photo'?'Não foi possível processar esta foto. Use JPG, PNG ou WebP de até 10 MB e no máximo 40 megapixels.':failure(error));}
     finally{button.disabled=false;}
   });
 })();
