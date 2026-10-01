@@ -30,9 +30,9 @@
     for(const item of data){
       const card=document.createElement('article');card.className='admin-card';
       const img=document.createElement('img');img.alt=item.title;img.loading='lazy';img.src=client.storage.from('haptos-portfolio').getPublicUrl(item.image_path).data.publicUrl;
-      const body=document.createElement('div'),title=document.createElement('h3'),state=document.createElement('p'),actions=document.createElement('div');title.textContent=item.title;state.textContent=item.published?'Publicado no site':'Oculto do site';actions.className='admin-card-actions';
+      const body=document.createElement('div'),title=document.createElement('h3'),state=document.createElement('p'),actions=document.createElement('div');title.textContent=item.title;state.textContent=(item.category||'Outros')+' · '+(item.published?'Publicado no site':'Oculto do site');actions.className='admin-card-actions';
       const edit=document.createElement('button');edit.type='button';edit.className='outline-button';edit.textContent='Editar';edit.addEventListener('click',()=>{
-        if(saving)return;resetEditor();editing=item;$('#project-id').value=item.id;$('#project-title').value=item.title;$('#project-description').value=item.description;$('#project-published').checked=item.published;photos=(item.image_paths?.length?item.image_paths:[item.image_path]).map(path=>({path}));renderPhotos();$('#editor-title').textContent='Editar projeto';$('#save-project').textContent='Salvar alterações';$('#cancel-edit').hidden=false;$('#project-title').focus();
+        if(saving)return;resetEditor();editing=item;$('#project-id').value=item.id;$('#project-title').value=item.title;$('#project-description').value=item.description;$('#project-category').value=item.category||'Outros';$('#project-published').checked=item.published;photos=(item.image_paths?.length?item.image_paths:[item.image_path]).map(path=>({path}));renderPhotos();$('#editor-title').textContent='Editar projeto';$('#save-project').textContent='Salvar alterações';$('#cancel-edit').hidden=false;$('#project-title').focus();
       });
       const visibility=document.createElement('button');visibility.type='button';visibility.className='outline-button';visibility.textContent=item.published?'Ocultar':'Publicar';visibility.addEventListener('click',async()=>{if(saving)return;visibility.disabled=true;try{const {data,error}=await client.from('haptos_portfolio_projects').update({published:!item.published}).eq('id',item.id).select('id').single();if(error||!data)throw error||new Error();await loadProjects();message(item.published?'Projeto ocultado. Você pode publicá-lo novamente quando quiser.':'Projeto publicado.');}catch(error){message(failure(error));}finally{visibility.disabled=false;}});
       const remove=document.createElement('button');remove.type='button';remove.className='outline-button';remove.textContent='Excluir';remove.style.color='#ff9275';remove.setAttribute('aria-label','Excluir projeto '+item.title);
@@ -101,7 +101,7 @@
         const {error}=await client.storage.from('haptos-portfolio').upload(path,blob,{contentType:blob.type,cacheControl:'31536000',upsert:false});
         if(error)throw error;uploaded.push(path);paths.push(path);
       }
-      const value={title,description,image_path:paths[0],image_paths:paths,published:$('#project-published').checked};
+      const value={title,description,category:$('#project-category').value,image_path:paths[0],image_paths:paths,published:$('#project-published').checked};
       const query=editing?client.from('haptos_portfolio_projects').update(value).eq('id',editing.id):client.from('haptos_portfolio_projects').insert(value);
       const {data,error}=await query.select('id').single();if(error||!data)throw error||new Error();committed=true;
       const removed=previousPaths.filter(path=>!paths.includes(path));
