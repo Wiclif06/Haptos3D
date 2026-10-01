@@ -35,7 +35,22 @@
         if(saving)return;resetEditor();editing=item;$('#project-id').value=item.id;$('#project-title').value=item.title;$('#project-description').value=item.description;$('#project-published').checked=item.published;photos=(item.image_paths?.length?item.image_paths:[item.image_path]).map(path=>({path}));renderPhotos();$('#editor-title').textContent='Editar projeto';$('#save-project').textContent='Salvar alterações';$('#cancel-edit').hidden=false;$('#project-title').focus();
       });
       const visibility=document.createElement('button');visibility.type='button';visibility.className='outline-button';visibility.textContent=item.published?'Ocultar':'Publicar';visibility.addEventListener('click',async()=>{if(saving)return;visibility.disabled=true;try{const {data,error}=await client.from('haptos_portfolio_projects').update({published:!item.published}).eq('id',item.id).select('id').single();if(error||!data)throw error||new Error();await loadProjects();message(item.published?'Projeto ocultado. Você pode publicá-lo novamente quando quiser.':'Projeto publicado.');}catch(error){message(failure(error));}finally{visibility.disabled=false;}});
-      actions.append(edit,visibility);body.append(title,state,actions);card.append(img,body);$('#admin-projects').append(card);
+      const remove=document.createElement('button');remove.type='button';remove.className='outline-button';remove.textContent='Excluir';remove.style.color='#ff9275';remove.setAttribute('aria-label','Excluir projeto '+item.title);
+      remove.addEventListener('click',async()=>{
+        if(saving||!window.confirm('Excluir “'+item.title+'” e suas fotos definitivamente? Esta ação não pode ser desfeita.'))return;
+        saving=true;$('#project-fields').disabled=true;remove.disabled=true;remove.textContent='Excluindo…';let deleted=false;
+        try{
+          const {data,error}=await client.from('haptos_portfolio_projects').delete().eq('id',item.id).select('id,image_path,image_paths').single();
+          if(error||!data)throw error||new Error();deleted=true;
+          if(editing?.id===item.id)resetEditor();card.remove();
+          const paths=[...new Set([data.image_path,...(data.image_paths||[])].filter(Boolean))];
+          const cleanup=paths.length?await client.storage.from('haptos-portfolio').remove(paths):{};
+          await loadProjects();
+          message(cleanup.error?'Projeto excluído. Não foi possível remover as fotos do armazenamento.':'Projeto e fotos excluídos.');
+        }catch(error){message(deleted?'Projeto excluído. Não foi possível concluir a limpeza ou atualizar a lista. Atualize a página.':failure(error));}
+        finally{saving=false;$('#project-fields').disabled=false;remove.disabled=false;remove.textContent='Excluir';}
+      });
+      actions.append(edit,visibility,remove);body.append(title,state,actions);card.append(img,body);$('#admin-projects').append(card);
     }
   }
   async function applySession(session){
