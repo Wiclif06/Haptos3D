@@ -1,0 +1,16 @@
+const {BASE,escape:e,projectPath,photo,query,shell}=require('../lib/projects');
+module.exports=async(req,res)=>{
+ res.setHeader('Cache-Control','no-store');res.setHeader('Content-Type','text/html; charset=utf-8');
+ if(!['GET','HEAD'].includes(req.method)){res.setHeader('Allow','GET, HEAD');return res.status(405).end();}
+ const id=req.query.id;
+ if(typeof id!=='string'||! /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))return missing();
+ try{const [p]=await query({id:'eq.'+id,limit:'1'});if(!p)return missing();
+ const url=BASE+projectPath(p),title=p.title+' | Portfólio Haptos 3D',desc=p.description.replace(/\s+/g,' ').slice(0,160),photos=(p.image_paths?.length?p.image_paths:[p.image_path]).filter(Boolean),images=photos.map(photo);
+ const structured={'@context':'https://schema.org','@graph':[{'@type':'WebPage',url,name:title,description:p.description,mainEntity:{'@id':url+'#work'}},{'@type':'CreativeWork','@id':url+'#work',name:p.title,description:p.description,url,image:images,creator:{'@type':'Organization',name:'Haptos 3D',url:BASE+'/'}},{'@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Início',item:BASE+'/'},{'@type':'ListItem',position:2,name:'Portfólio',item:BASE+'/portfolio.html'},{'@type':'ListItem',position:3,name:p.title,item:url}]}]};
+ const head=`<link rel="canonical" href="${url}"><meta name="description" content="${e(desc)}"><meta property="og:type" content="website"><meta property="og:site_name" content="Haptos 3D"><meta property="og:title" content="${e(title)}"><meta property="og:description" content="${e(desc)}"><meta property="og:url" content="${url}"><meta property="og:image" content="${e(images[0]||BASE+'/assets/logo.png')}"><meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">${JSON.stringify(structured).replace(/</g,'\\u003c')}</script>`;
+ const wa='https://wa.me/5511932845696?text='+encodeURIComponent('Olá, Haptos 3D! Quero algo parecido com o projeto “'+p.title+'”.\nReferência: '+url);
+ const body=`<section class="section project-page"><div class="breadcrumbs"><a href="/portfolio.html">Portfólio</a> / Projeto</div><p class="eyebrow">PROJETO HAPTOS 3D</p><h1>${e(p.title)}</h1><p class="project-text">${e(p.description)}</p><a class="button" href="${e(wa)}" target="_blank" rel="noopener">Quero algo parecido ↗</a><div class="project-images">${images.map((src,i)=>`<figure><a href="${e(src)}" target="_blank" rel="noopener"><img src="${e(src)}" alt="${e(p.title)} — foto ${i+1} de ${images.length}" ${i?'loading="lazy"':'fetchpriority="high"'} width="1200" height="900"></a><figcaption>Foto ${i+1} de ${images.length}</figcaption></figure>`).join('')}</div></section>`;
+ return res.status(200).send(shell(title,head,body));
+ }catch{res.setHeader('Retry-After','60');res.setHeader('X-Robots-Tag','noindex');return res.status(503).send(shell('Projeto temporariamente indisponível','', '<section class="section"><h1>Tente novamente em instantes.</h1><p>Não foi possível carregar este projeto agora.</p></section>'));}
+ function missing(){res.setHeader('X-Robots-Tag','noindex');return res.status(404).send(shell('Projeto não encontrado | Haptos 3D','', '<section class="section"><h1>Projeto não encontrado.</h1><p>Este trabalho não está disponível no portfólio público.</p></section>'));}
+};

@@ -32,5 +32,15 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/projetos/:id",
+      "destination": "/api/project?id=:id"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    }
   ]
 }
