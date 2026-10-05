@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const core=require('../dist/orcamento-core.js');
+const base={number:'H3D-TESTE',customer:'Cliente de teste',date:'2026-10-05',validity:'2026-10-12',items:[{name:'Chaveiro personalizado',description:'PLA laranja com personalização em relevo.',quantity:600,price:40,photo:''}],discount:10,freight:100,setup:200,deposit:50,deadline:'15 dias úteis após aprovação',payment:'Pix',delivery:'Retirada',notes:'Aprovar a prévia antes da produção.'};
+assert.deepEqual(core.totals(base),{lines:[24000],subtotal:24000,discount:2400,extras:300,total:21900,deposit:10950,balance:10950});
+assert.equal(core.totals({...base,discount:100,freight:0,setup:0}).total,0);
+assert.throws(()=>core.validate({...base,discount:101}));assert.throws(()=>core.validate({...base,validity:'2026-10-01'}));assert.throws(()=>core.validate({...base,items:[{name:'x',quantity:1.5,price:4}]}));
+assert.equal(core.totals({...base,items:[{quantity:3,price:0.1}],discount:0,freight:0,setup:0}).total,.3);
+const PDFLib=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES+'/pdf-lib');
+const ctx={window:{},setTimeout,clearTimeout,Uint8Array,ArrayBuffer,HaptosQuote:core,fetch:async()=>({ok:true,arrayBuffer:async()=>fs.readFileSync(__dirname+'/../dist/assets/logo.png')})};vm.createContext(ctx);vm.runInContext(fs.readFileSync(__dirname+'/../dist/vendor/pdf-lib-1.17.1.min.js','utf8'),ctx);vm.runInContext(fs.readFileSync(__dirname+'/../dist/orcamento-pdf.js','utf8'),ctx);
+(async()=>{const logo=fs.readFileSync(__dirname+'/../dist/assets/logo.png');const doc=await PDFLib.PDFDocument.create();const image=await doc.embedPng(logo);const p=doc.addPage([100,100]);p.drawImage(image,{x:0,y:0,width:100,height:80});
+// JPEG produced from a real PNG through the installed image tool for the PDF image test.
+const photo=fs.existsSync('/tmp/haptos-test-photo.jpg')?'data:image/jpeg;base64,'+fs.readFileSync('/tmp/haptos-test-photo.jpg').toString('base64'):'';
+for(const count of [1,20]){const q={...base,items:Array.from({length:count},(_,i)=>({...base.items[0],name:'Produto '+(i+1),photo,description:'Impressão 3D em PLA. Cores: laranja e branco. '.repeat(count===20?7:1)}))};const bytes=await ctx.window.generateHaptosPDF(q),pdf=await PDFLib.PDFDocument.load(bytes);assert.ok(pdf.getPageCount()>=1);if(count===20)assert.ok(pdf.getPageCount()>1);fs.writeFileSync('/tmp/haptos-quote-test-'+count+'.pdf',bytes);console.log(count+' products: '+pdf.getPageCount()+' PDF pages');}console.log('Quote arithmetic, validation, PDF images and pagination passed.');})().catch(e=>{console.error(e);process.exit(1)});

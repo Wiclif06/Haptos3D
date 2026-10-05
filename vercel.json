@@ -31,9 +31,31 @@
           "value": "noindex, nofollow"
         }
       ]
+    },
+    {
+      "source": "/orcamentoadmin",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/orcamentoadmin.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
     }
   ],
   "rewrites": [
+    {
+      "source": "/orcamentoadmin",
+      "destination": "/orcamentoadmin.html"
+    },
     {
       "source": "/projetos/:id",
       "destination": "/api/project?id=:id"

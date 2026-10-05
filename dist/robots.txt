@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://haptos3d.com.br/sitemap.xml
+Disallow: /orcamentoadmin

@@ -1,0 +1,8 @@
+(function(root){
+  const round=n=>Math.round((n+Number.EPSILON)*100)/100;
+  const currency=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(n);
+  function totals(q){const lines=q.items.map(i=>round(Number(i.quantity)*Number(i.price)));const subtotal=round(lines.reduce((a,b)=>a+b,0)),discount=round(subtotal*Number(q.discount)/100),extras=round(Number(q.freight)+Number(q.setup)),total=round(subtotal-discount+extras),deposit=round(total*Number(q.deposit)/100);return{lines,subtotal,discount,extras,total,deposit,balance:round(total-deposit)};}
+  function validate(q){if(!q.customer.trim()||!q.number.trim())throw Error('Preencha o cliente e o número do orçamento.');if(!q.date||!q.validity||q.validity<q.date)throw Error('A validade deve ser igual ou posterior à emissão.');if(!q.items.length||q.items.length>20)throw Error('Adicione de 1 a 20 produtos.');for(const i of q.items){if(!i.name.trim()||!Number.isInteger(Number(i.quantity))||Number(i.quantity)<1||Number(i.quantity)>1000000||!Number.isFinite(Number(i.price))||Number(i.price)<0||Number(i.price)>10000000)throw Error('Confira nome, quantidade inteira e valor de cada produto.');}for(const k of ['discount','deposit'])if(!Number.isFinite(Number(q[k]))||q[k]<0||q[k]>100)throw Error('Desconto e entrada devem ficar entre 0% e 100%.');for(const k of ['freight','setup'])if(!Number.isFinite(Number(q[k]))||q[k]<0||q[k]>10000000)throw Error('Confira os valores de frete e modelagem.');if(totals(q).total>999999999999.99)throw Error('O total excede o limite permitido.');return q;}
+  root.HaptosQuote={round,currency,totals,validate};
+  if(typeof module!=='undefined')module.exports=root.HaptosQuote;
+})(typeof window==='undefined'?globalThis:window);

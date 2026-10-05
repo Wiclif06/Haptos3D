@@ -65,3 +65,12 @@ Documentação: https://vercel.com/docs/deployments/configure-a-build
 - O visitante alterna as fotos no detalhe e usa “Quero algo parecido” para abrir o WhatsApp com o título do projeto.
 - O formulário inclui medidas, quantidade e prazo desejado opcionais, enviados na mensagem de orçamento.
 - Migração aplicada: `portfolio-gallery.sql`. Testados upload de duas fotos, troca na galeria, edição/remoção da capa, limpeza de arquivos e mensagem com todos os campos e com campos opcionais vazios.
+
+## Painel de orçamentos
+
+- Acesso direto: `/orcamentoadmin`, com o mesmo login e sessão do portfólio. A página não aparece na navegação pública.
+- Até 20 produtos com descrição, quantidade, preço unitário e foto. Totais, desconto percentual, frete, modelagem, entrada e saldo automáticos.
+- Gerar PDF abre uma prévia e permite baixar o documento com logo e fotos. A geração ocorre no navegador, sem enviar a proposta a um serviço de PDF.
+- Salvar orçamento mantém o histórico privado em `haptos_quotes`; editar e duplicar disponíveis. As fotos otimizadas ficam no payload privado, sem bucket público.
+- Migração `quotes-setup.sql` aplicada no projeto existente; não executar novamente. Políticas restringem leitura e escrita aos administradores Haptos.
+- Testes: `node tests/quotes.cjs` com dependências do runtime; cálculos, limites, fotos e paginação. Permissões de leitura/escrita verificadas com transação revertida.
