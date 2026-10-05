@@ -13,16 +13,48 @@ window.generateHaptosPDF=async function(q){
   function wrap(value,width,size=9,font=regular){const lines=[];for(const para of clean(value).split('\n')){let row='';for(const word of para.split(/\s+/).filter(Boolean)){let fragments=[word];if(font.widthOfTextAtSize(word,size)>width){fragments=[];let part='';for(const char of word){if(font.widthOfTextAtSize(part+char,size)>width){fragments.push(part);part='';}part+=char;}if(part)fragments.push(part);}for(const part of fragments){const next=row?row+' '+part:part;if(font.widthOfTextAtSize(next,size)>width){if(row)lines.push(row);row=part;}else row=next;}}if(row)lines.push(row);}return lines;}
   function drawLines(lines,x,top,size=9,font=regular,color=ink,leading=13){lines.forEach((s,i)=>text(s,x,top-i*leading,size,font,color));return lines.length*leading;}
   function rule(yy){page.drawLine({start:{x:M,y:yy},end:{x:W-M,y:yy},thickness:.65,color:line});}
-  function newPage(){page=pdf.addPage([W,H]);page.drawRectangle({x:0,y:H-94,width:W,height:94,color:ink});page.drawRectangle({x:0,y:H-96,width:W,height:2,color:orange});const d=logo.scaleToFit(158,33);page.drawImage(logo,{x:M,y:H-53,width:d.width,height:d.height});text('IMPRESSÃO 3D PERSONALIZADA',M,H-73,7,regular,rgb(.7,.7,.7));right('PROPOSTA COMERCIAL',W-M,H-39,10,bold,white);const n=wrap(q.number,240,8);drawLines(n,W-M-240,H-58,8,regular,rgb(.72,.72,.72),11);y=H-118;}
+  function newPage(){page=pdf.addPage([W,H]);page.drawRectangle({x:0,y:H-94,width:W,height:94,color:ink});page.drawRectangle({x:0,y:H-96,width:W,height:2,color:orange});const d=logo.scaleToFit(158,33);page.drawImage(logo,{x:M,y:H-53,width:d.width,height:d.height});text('IMPRESSÃO 3D PERSONALIZADA',M,H-73,7,regular,rgb(.7,.7,.7));right('PROPOSTA COMERCIAL',W-M,H-39,10,bold,white);const n=wrap(q.number,240,8);n.forEach((line,i)=>right(line,W-M,H-58-i*11,8,regular,rgb(.72,.72,.72)));y=H-118;}
   function ensure(height){if(y-height<BOTTOM)newPage();}
   function tableHeader(){ensure(30);page.drawRectangle({x:M,y:y-23,width:C,height:23,color:ink});text('PRODUTO',M+12,y-15,7,bold,white);right('QTD.',381,y-15,7,bold,white);right('UNITÁRIO',459,y-15,7,bold,white);right('TOTAL',W-M-10,y-15,7,bold,white);y-=23;}
+  // A three-part proposal: brand, project study and commercial terms.
+  const companyDefault='A Haptos 3D transforma ideias em peças por meio da impressão 3D sob medida. Desenvolvemos peças funcionais, protótipos e objetos personalizados, partindo do uso e dos detalhes de cada projeto. Material, medidas, acabamento e prazo são alinhados com você antes da produção.';
+  function fitted(value,x,top,width,height,size,font=regular,color=ink){let lines=wrap(value,width,size,font);while(lines.length*size*1.4>height&&size>6.5){size-=.5;lines=wrap(value,width,size,font);}drawLines(lines,x,top,size,font,color,size*1.4);}
+  function label(value,x,yy,color=muted){text(value,x,yy,7,bold,color);}
+  function projectPage(){newPage();label('02 / O PROJETO',M,706,orange);fitted(q.projectTitle||q.items[0].name,M,678,C,78,23,bold);}
+  // Opening spread. Generous whitespace, restrained orange and warm paper.
+  page=pdf.addPage([W,H]);
+  page.drawRectangle({x:0,y:0,width:W,height:H,color:pale});
+  page.drawRectangle({x:0,y:405,width:W,height:H-405,color:ink});
+  const coverLogo=logo.scaleToFit(182,38);page.drawImage(logo,{x:M,y:773,width:coverLogo.width,height:coverLogo.height});
+  label('PROPOSTA PERSONALIZADA',M,733,rgb(.69,.7,.7));
+  // Subtle layer motif echoes additive manufacturing without competing with copy.
+  for(let i=0;i<9;i++)page.drawLine({start:{x:392+i*8,y:548+i*13},end:{x:W-M,y:548+i*13},thickness:.7,color:rgb(.25,.25,.25)});
+  text('Sua ideia.',M,663,39,bold,white);text('Nossa próxima',M,610,34,bold,white);text('criação.',M,557,39,bold,orange);
+  label('PREPARADO PARA',M,494,rgb(.68,.68,.68));
+  fitted(q.customer,M,468,C,65,16,bold,white);
+  page.drawRectangle({x:M,y:403,width:58,height:4,color:orange});
+  label('01 / A HAPTOS 3D',M,371,orange);
+  text('Da ideia à peça.',M,337,25,bold);
+  fitted(q.companyAbout||companyDefault,M,309,C,166,10.5,regular,muted);
+  const steps=[['01','Entender','O uso e os detalhes.'],['02','Personalizar','Material, forma e acabamento.'],['03','Produzir','Seu projeto ganha forma.']];
+  steps.forEach(([n,title,sub],i)=>{const x=M+i*177;text(n,x,112,9,bold,orange);text(title,x,94,10,bold);drawLines(wrap(sub,155,7.5),x,78,7.5,regular,muted,11);});
+  // The first uploaded reference becomes the full-page project's focal point.
+  projectPage();
+  page.drawRectangle({x:M,y:298,width:C,height:313,color:pale});
+  const heroItem=q.items.find(item=>item.photo);
+  if(heroItem){const img=await pdf.embedJpg(heroItem.photo),d=img.scaleToFit(C-28,285);page.drawImage(img,{x:M+(C-d.width)/2,y:298+(313-d.height)/2,width:d.width,height:d.height});}
+  else {text('Seu projeto começa aqui.',M+30,456,19,bold,muted);text('Imagem de referência a definir.',M+30,432,10,regular,muted);}
+  label('VISUALIZAÇÃO DO PROJETO',M,281);right(heroItem?'Referência visual para alinhamento':'Imagem pendente',W-M,281,7,regular,muted);
+  const specs=[['MATERIAL',q.material],['CORES',q.colors],['ACABAMENTO',q.finish],['MEDIDAS',q.dimensions]];
+  specs.forEach(([name,value],i)=>{const x=M+(i%2)*270,top=251-Math.floor(i/2)*82;page.drawLine({start:{x,y:top+10},end:{x:x+249,y:top+10},thickness:.6,color:line});label(name,x,top-4,orange);fitted(value||'A definir com o cliente',x,top-23,249,53,9);});
+  text('Especificações e imagem sujeitas à aprovação antes da produção.',M,76,7.5,regular,muted);
   const date=v=>v?new Date(v+'T12:00:00').toLocaleDateString('pt-BR'):'';
-  newPage();text('EMISSÃO  '+date(q.date),M,y,7.5,regular,muted);right('VÁLIDO ATÉ  '+date(q.validity),W-M,y,7.5,bold,muted);y-=22;
+  newPage();label('03 / INVESTIMENTO E CONDIÇÕES',M,y,orange);y-=25;text('EMISSÃO  '+date(q.date),M,y,7.5,regular,muted);right('VÁLIDO ATÉ  '+date(q.validity),W-M,y,7.5,bold,muted);y-=22;
   const clientLines=wrap(q.customer,C-24,13,bold),contactLines=wrap([q.document&&'CPF/CNPJ: '+q.document,q.contact&&'Contato: '+q.contact,q.phone,q.email].filter(Boolean).join(' / '),C-24,8);
   const clientHeight=34+clientLines.length*17+contactLines.length*12;page.drawRectangle({x:M,y:y-clientHeight,width:C,height:clientHeight,color:pale});text('PREPARADO PARA',M+12,y-16,6.5,bold,muted);let cy=y-34;cy-=drawLines(clientLines,M+12,cy,13,bold,ink,17);drawLines(contactLines,M+12,cy-2,8,regular,muted,12);y-=clientHeight+22;
   tableHeader();
   for(const [index,item]of q.items.entries()){
-    const hasPhoto=!!item.photo,tx=M+(hasPhoto?87:12),width=345-tx-12,nameLines=wrap(item.name,width,9.5,bold),descLines=wrap(item.description,width,8),rowHeight=Math.max(hasPhoto?92:56,24+nameLines.length*14+descLines.length*11);
+    const hasPhoto=q.items.length>1&&!!item.photo,tx=M+(hasPhoto?87:12),width=345-tx-12,nameLines=wrap(item.name,width,9.5,bold),descLines=wrap(item.description,width,8),rowHeight=Math.max(hasPhoto?92:56,24+nameLines.length*14+descLines.length*11);
     if(y-rowHeight<BOTTOM){newPage();tableHeader();}
     const top=y;if(index%2===0)page.drawRectangle({x:M,y:top-rowHeight,width:C,height:rowHeight,color:rgb(.976,.977,.978)});
     if(hasPhoto){const image=await pdf.embedJpg(item.photo),d=image.scaleToFit(64,64);page.drawRectangle({x:M+10,y:top-76,width:68,height:68,color:white});page.drawImage(image,{x:M+12+(64-d.width)/2,y:top-74+(64-d.height)/2,width:d.width,height:d.height});}
@@ -44,5 +76,5 @@ window.generateHaptosPDF=async function(q){
   y=top-recapHeight-24;
   if(q.notes){const noteLines=wrap(q.notes,C,8.5);ensure(38);text('OBSERVAÇÕES',M,y,7,bold,muted);y-=17;for(const l of noteLines){ensure(13);text(l,M,y,8.5,regular,muted);y-=13;}}
   const pages=pdf.getPages();pages.forEach((p,i)=>{p.drawLine({start:{x:M,y:43},end:{x:W-M,y:43},thickness:.6,color:line});p.drawText('HAPTOS 3D',{x:M,y:28,size:7,font:bold,color:ink});p.drawText('haptos3d.com.br  |  (11) 93284-5696',{x:M+70,y:28,size:7,font:regular,color:muted});p.drawText((i+1)+' / '+pages.length,{x:W-M-22,y:28,size:7,font:regular,color:muted});});
-  pdf.setTitle('Orçamento '+q.number+' - Haptos 3D');pdf.setAuthor('Haptos 3D');return pdf.save();
+  pdf.setTitle('Proposta comercial '+q.number+' - Haptos 3D');pdf.setAuthor('Haptos 3D');return pdf.save();
 };
