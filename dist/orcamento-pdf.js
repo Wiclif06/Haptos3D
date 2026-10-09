@@ -48,7 +48,7 @@ window.generateHaptosPDF=async function(q){
     const top=y;if(index%2===0)page.drawRectangle({x:M,y:top-rowHeight,width:C,height:rowHeight,color:panel});
     if(hasPhoto){const image=await pdf.embedJpg(item.photo),d=image.scaleToFit(64,64);page.drawRectangle({x:M+10,y:top-76,width:68,height:68,color:black});page.drawImage(image,{x:M+12+(64-d.width)/2,y:top-74+(64-d.height)/2,width:d.width,height:d.height});}
     let iy=top-20;iy-=drawLines(nameLines,tx,iy,9.5,bold,ink,14);drawLines(descLines,tx,iy-3,8,regular,muted,11);
-    right(String(item.quantity),381,top-22,9);right(currency(item.price),459,top-22,8);right(currency(sum.lines[index]),W-M-10,top-22,9,bold);y-=rowHeight;rule(y);
+    right(String(item.quantity),381,top-22,9);right(item.priceMode==='fixed'?'Fechado':currency(item.price),459,top-22,8);right(currency(sum.lines[index]),W-M-10,top-22,9,bold);y-=rowHeight;rule(y);
   }
   y-=22;
   const leftWidth=270,boxX=337,boxW=W-M-boxX;
