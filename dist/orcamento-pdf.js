@@ -38,7 +38,7 @@ window.generateHaptosPDF=async function(q){
   const specs=[['MATERIAL',q.material],['CORES',q.colors],['ACABAMENTO',q.finish],['MEDIDAS',q.dimensions]];
   specs.forEach(([name,value],i)=>{const x=M+(i%2)*270,top=224-Math.floor(i/2)*74;page.drawRectangle({x,y:top-61,width:249,height:70,color:panel});label(name,x+12,top-6,orange);fitted(value||'A definir com o cliente',x+12,top-23,225,44,9);});
   text('Imagem e especificações sujeitas à aprovação antes da produção.',M,64,7,regular,muted);
-  newPage();label('02 / PROPOSTA COMERCIAL',M,y,orange);y-=43;text('INVESTIMENTO.',M,y,35,editorial);y-=31;text('EMISSÃO  '+date(q.date),M,y,7.5,regular,muted);right('VÁLIDO ATÉ  '+date(q.validity),W-M,y,7.5,bold,muted);y-=22;
+  newPage();label('02 / PROPOSTA COMERCIAL',M,y,orange);y-=43;text('ORÇAMENTO',M,y,35,editorial);y-=31;text('EMISSÃO  '+date(q.date),M,y,7.5,regular,muted);right('VÁLIDO ATÉ  '+date(q.validity),W-M,y,7.5,bold,muted);y-=22;
   const clientLines=wrap(q.customer,C-24,13,bold),contactLines=wrap([q.document&&'CPF/CNPJ: '+q.document,q.contact&&'Contato: '+q.contact,q.phone,q.email].filter(Boolean).join(' / '),C-24,8);
   const clientHeight=34+clientLines.length*17+contactLines.length*12;page.drawRectangle({x:M,y:y-clientHeight,width:C,height:clientHeight,color:panel});text('PREPARADO PARA',M+12,y-16,6.5,bold,muted);let cy=y-34;cy-=drawLines(clientLines,M+12,cy,13,bold,ink,17);drawLines(contactLines,M+12,cy-2,8,regular,muted,12);y-=clientHeight+22;
   tableHeader();
