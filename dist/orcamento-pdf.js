@@ -5,7 +5,7 @@ window.generateHaptosPDF=async function(q){
   async function asset(path){const r=await fetch(path);if(!r.ok)throw Error('Não foi possível carregar o visual do PDF. Confira sua conexão.');return r.arrayBuffer();}
   const [fontBytes,boldBytes,logoBytes]=await Promise.all([asset('/assets/fonts/DejaVuSans.ttf'),asset('/assets/fonts/DejaVuSans-Bold.ttf'),asset('/assets/logo.png')]);
   const regular=await pdf.embedFont(fontBytes,{subset:true}),bold=await pdf.embedFont(boldBytes,{subset:true}),logo=await pdf.embedPng(logoBytes);
-  const editorial=await pdf.embedFont(await asset('/assets/fonts/DejaVuSerif.ttf'),{subset:true});
+  const editorial=await pdf.embedFont(await asset('/assets/fonts/Anton-Regular.ttf'),{subset:true});
   const orange=rgb(1,.43,.12),ink=rgb(.94,.94,.93),muted=rgb(.66,.68,.70),line=rgb(.23,.25,.27),paper=rgb(.065,.073,.082),panel=rgb(.10,.115,.13),black=rgb(.035,.04,.045),white=rgb(1,1,1);
   const sum=totals(q),W=595.28,H=841.89,M=38,C=W-M*2,BOTTOM=58;let page,y;
   const clean=s=>String(s??'').normalize('NFC').replace(/[\u2010-\u2015]/g,'-').replace(/[^\u0020-\u007e\u00a0-\u024f\n]/g,'');
@@ -17,42 +17,18 @@ window.generateHaptosPDF=async function(q){
   function newPage(){page=pdf.addPage([W,H]);page.drawRectangle({x:0,y:0,width:W,height:H,color:paper});page.drawRectangle({x:0,y:H-78,width:W,height:78,color:black});const d=logo.scaleToFit(148,30);page.drawImage(logo,{x:M,y:H-51,width:d.width,height:d.height});right('PROPOSTA COMERCIAL',W-M,H-32,7,bold,white);const n=wrap(q.number,240,7);n.forEach((line,i)=>right(line,W-M,H-47-i*10,7,regular,rgb(.7,.7,.7)));page.drawLine({start:{x:M,y:H-78},end:{x:W-M,y:H-78},thickness:.6,color:line});y=H-108;}
   function ensure(height){if(y-height<BOTTOM)newPage();}
   function tableHeader(){ensure(32);page.drawLine({start:{x:M,y},end:{x:W-M,y},thickness:1.4,color:orange});text('ESPECIFICAÇÃO',M+12,y-19,6.5,bold,muted);right('QTD.',381,y-19,6.5,bold,muted);right('UNITÁRIO',459,y-19,6.5,bold,muted);right('VALOR',W-M-10,y-19,6.5,bold,muted);y-=30;rule(y);}
-  // A three-part proposal: brand, project study and commercial terms.
-  const companyDefault='A Haptos 3D transforma ideias em peças por meio da impressão 3D sob medida. Desenvolvemos peças funcionais, protótipos e objetos personalizados, partindo do uso e dos detalhes de cada projeto. Material, medidas, acabamento e prazo são alinhados com você antes da produção.';
+  // Project and commercial proposal.
   function fitted(value,x,top,width,height,size,font=regular,color=ink){let lines=wrap(value,width,size,font);while(lines.length*size*1.4>height&&size>6.5){size-=.5;lines=wrap(value,width,size,font);}drawLines(lines,x,top,size,font,color,size*1.4);}
   function label(value,x,yy,color=muted){text(value,x,yy,7,bold,color);}
-  // Dark editorial cover: tonal surfaces and a restrained geometric layer motif.
-  newPage();
-  label('01 / APRESENTAÇÃO',M,724,orange);
-  // A small layered silhouette evokes the manufacturing process.
-  for(let i=0;i<8;i++){
-    const yy=685-i*10,xx=478-i*4;
-    page.drawLine({start:{x:xx,y:yy},end:{x:W-M,y:yy+20},thickness:.8,color:rgb(.30,.18,.12)});
-  }
-  text('Do conceito',M,653,47,editorial);
-  text('à criação.',M,594,54,editorial,orange);
-  fitted(q.projectTitle||q.items[0].name,M,549,C,48,13,bold,muted);
-  page.drawRectangle({x:M,y:373,width:C,height:120,color:panel});
-  page.drawRectangle({x:M,y:373,width:3,height:120,color:orange});
-  label('PREPARADA EXCLUSIVAMENTE PARA',M+23,471,rgb(.72,.72,.72));
-  fitted(q.customer,M+23,445,C-46,46,18,bold,white);
   const date=v=>v?new Date(v+'T12:00:00').toLocaleDateString('pt-BR'):'';
-  text('EMISSÃO  '+date(q.date),M+23,389,7,regular,muted);
-  right('VALIDADE  '+date(q.validity),W-M-23,389,7,regular,muted);
-  label('A HAPTOS 3D',M,334,orange);
-  text('Ideias que',M,306,24,editorial);text('ganham forma.',M,278,21,editorial);
-  fitted(q.companyAbout||companyDefault,M+185,334,C-185,185,10,regular,muted);
-  rule(130);
-  const steps=[['01','Entender','O uso e os detalhes.'],['02','Personalizar','Material, forma e acabamento.'],['03','Produzir','Seu projeto ganha forma.']];
-  steps.forEach(([n,title,sub],i)=>{const x=M+i*177;text(n,x,110,8,bold,orange);text(title,x+21,110,9,bold);drawLines(wrap(sub,155,7.5),x,91,7.5,regular,muted,11);});
   // Preserve the complete uploaded image in a large presentation area.
-  newPage();label('02 / ESTUDO DO PROJETO',M,724,orange);
-  text('O seu projeto.',M,686,40,editorial);
+  newPage();label('01 / ESTUDO DO PROJETO',M,724,orange);
+  text('SEU PROJETO.',M,678,36,editorial);
   fitted(q.projectTitle||q.items[0].name,M,651,C,45,12,bold,muted);
   page.drawRectangle({x:M,y:264,width:C,height:342,color:panel});
   const heroItem=q.items.find(item=>item.photo);
   if(heroItem){const img=await pdf.embedJpg(heroItem.photo),d=img.scaleToFit(C-24,318);page.drawImage(img,{x:M+(C-d.width)/2,y:264+(342-d.height)/2,width:d.width,height:d.height});}
-  else {text('O início de uma nova criação.',M+25,439,25,editorial,muted);text('Adicione a imagem de referência ao projeto.',M+25,414,9,regular,muted);}
+  else {text('UMA NOVA CRIAÇÃO.',M+25,439,25,editorial,muted);text('Adicione a imagem de referência ao projeto.',M+25,414,9,regular,muted);}
   // Corner marks frame the reference without cropping the user's photo.
   for(const [xx,yy,sx,sy]of [[M,606,1,-1],[W-M,606,-1,-1],[M,264,1,1],[W-M,264,-1,1]]){
     page.drawLine({start:{x:xx,y:yy},end:{x:xx+sx*14,y:yy},thickness:1.2,color:orange});
@@ -62,7 +38,7 @@ window.generateHaptosPDF=async function(q){
   const specs=[['MATERIAL',q.material],['CORES',q.colors],['ACABAMENTO',q.finish],['MEDIDAS',q.dimensions]];
   specs.forEach(([name,value],i)=>{const x=M+(i%2)*270,top=224-Math.floor(i/2)*74;page.drawRectangle({x,y:top-61,width:249,height:70,color:panel});label(name,x+12,top-6,orange);fitted(value||'A definir com o cliente',x+12,top-23,225,44,9);});
   text('Imagem e especificações sujeitas à aprovação antes da produção.',M,64,7,regular,muted);
-  newPage();label('03 / PROPOSTA COMERCIAL',M,y,orange);y-=43;text('Investimento.',M,y,35,editorial);y-=31;text('EMISSÃO  '+date(q.date),M,y,7.5,regular,muted);right('VÁLIDO ATÉ  '+date(q.validity),W-M,y,7.5,bold,muted);y-=22;
+  newPage();label('02 / PROPOSTA COMERCIAL',M,y,orange);y-=43;text('INVESTIMENTO.',M,y,35,editorial);y-=31;text('EMISSÃO  '+date(q.date),M,y,7.5,regular,muted);right('VÁLIDO ATÉ  '+date(q.validity),W-M,y,7.5,bold,muted);y-=22;
   const clientLines=wrap(q.customer,C-24,13,bold),contactLines=wrap([q.document&&'CPF/CNPJ: '+q.document,q.contact&&'Contato: '+q.contact,q.phone,q.email].filter(Boolean).join(' / '),C-24,8);
   const clientHeight=34+clientLines.length*17+contactLines.length*12;page.drawRectangle({x:M,y:y-clientHeight,width:C,height:clientHeight,color:panel});text('PREPARADO PARA',M+12,y-16,6.5,bold,muted);let cy=y-34;cy-=drawLines(clientLines,M+12,cy,13,bold,ink,17);drawLines(contactLines,M+12,cy-2,8,regular,muted,12);y-=clientHeight+22;
   tableHeader();
